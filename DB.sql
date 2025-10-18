@@ -2,6 +2,14 @@
 CREATE DATABASE IF NOT EXISTS loja_informatica;
 USE loja_informatica;
 
+CREATE TABLE Usuarios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    senha VARCHAR(255) NOT NULL
+);
+
+
 -- Produtos
 CREATE TABLE Produtos (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -28,3 +36,12 @@ INSERT INTO Produtos (nome, preco) VALUES
 INSERT INTO Carrinho (produto_id, quantidade) VALUES
 (1, 1),
 (3, 1);
+
+ALTER TABLE Carrinho ADD COLUMN usuario_id INT NULL;
+ALTER TABLE Carrinho ADD FOREIGN KEY (usuario_id) REFERENCES Usuarios(id) ON DELETE CASCADE;
+
+ALTER TABLE Usuarios ADD COLUMN admin TINYINT(1) DEFAULT 0;
+
+-- Definir um usuário como administrador
+UPDATE Usuarios SET admin=1 WHERE email='admin@gmail.com';
+

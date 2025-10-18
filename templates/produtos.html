@@ -1,37 +1,62 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Lista de Produtos</title>
-  </head>
-  <body>
-    <div class="container">
-      <h1>Produtos disponíveis</h1>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Produtos - Loja de Informática</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container">
+    <a class="navbar-brand" href="/">Loja</a>
+    <div>
+      {% if session.usuario_id %}
+        <span class="text-white me-3">Olá, {{ session.usuario_nome }}</span>
+        <a href="/carrinho" class="btn btn-warning btn-sm">Carrinho</a>
+        <a href="/logout" class="btn btn-outline-light btn-sm ms-2">Sair</a>
+      {% else %}
+        <a href="/login" class="btn btn-outline-light btn-sm">Entrar</a>
+      {% endif %}
+    </div>
+  </div>
+</nav>
 
-      {% for p in produtos%}
-      <div class="card">
-        <h3>{{p.nome}}</h3>
-        <p class="preco">Preço: {{p.preco}}</p>
+<div class="container mt-4">
+  <h2 class="mb-4">Produtos disponíveis</h2>
 
-        <div class="botoes">
-          <a
-            id="deletar"
-            href="/delete/{{p.id}}"
-            onclick="return confirm('Tem certeza que quer deletar?')"
-            >Deletar</a
-          >
-          <a id="editar" href="/editar/{{ p.id }}">Editar</a>
-          <a
-            href="/colocar/{{p.id}}"
-            onclick="return confirm('Tem certeza que quer adicionar ao carrinho?')"
-            >Adicionar ao Carrinho</a
-          >
+  <div class="row">
+    {% for p in produtos %}
+    <div class="col-md-4">
+      <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">{{ p.nome }}</h5>
+          <p class="card-text">Preço: R$ {{ "%.2f"|format(p.preco) }}</p>
+
+          {% if session.usuario_id %}
+            <a href="/colocar/{{ p.id }}" class="btn btn-primary w-100 mb-2">Adicionar ao Carrinho</a>
+          {% else %}
+            <a href="/login" class="btn btn-secondary w-100 mb-2">Login para comprar</a>
+          {% endif %}
+
+          <!-- Botões administrativos -->
+          {% if session.usuario_admin == 1 %}
+            <div class="d-flex justify-content-between">
+            <a href="/editar/{{ p.id }}" class="btn btn-outline-warning btn-sm">Editar</a>
+            <a href="/delete/{{ p.id }}" class="btn btn-outline-danger btn-sm">Excluir</a>
+          </div>
+          {% endif %}
         </div>
       </div>
-      {% endfor%}
     </div>
-    <p><a id="cadastro" href="/novo">Cadastrar um produto</a></p>
-    <p><a id="voltar" href="/">Voltar</a></p>
-  </body>
+    {% endfor %}
+  </div>
+
+  {% if session.usuario_admin == 1 %}
+  <div class="mt-3">
+    <a href="/novo" class="btn btn-success">Cadastrar produto</a>
+  </div>
+  {% endif %}
+</div>
+</body>
 </html>

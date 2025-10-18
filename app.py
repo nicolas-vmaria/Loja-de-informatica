@@ -1,143 +1,179 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, session
 import mysql.connector
+from functools import wraps
 
 app = Flask(__name__)
+app.secret_key = "chave_segura"
+
 
 conexao = mysql.connector.connect(
-    host="localhost", port="3406", user="root", password="", database="loja_informatica"
+    host="localhost",
+    port="3306",
+    user="root",
+    password="12345678",
+    database="loja_informatica"
 )
 cursor = conexao.cursor(dictionary=True)
 
 
-# -----------------------------
-# Página inicial
-# -----------------------------
+def login_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if "usuario_id" not in session:
+            return redirect("/")
+        return f(*args, **kwargs)
+    return decorated
+
+def admin_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if session.get("usuario_admin") != 1:
+            return redirect("/produtos")
+        return f(*args, **kwargs)
+    return decorated
+
+
 @app.route("/")
 def index():
+    if "usuario_id" in session:
+        return redirect("/produtos")
     return render_template("index.html")
 
 
-# -----------------------------
-# Listar produtos
-# -----------------------------
+@app.route("/cadastro", methods=["GET", "POST"])
+def cadastro():
+    if request.method == "POST":
+        nome = request.form["nome"]
+        email = request.form["email"]
+        senha = request.form["senha"]
+
+        cursor.execute(
+            "INSERT INTO Usuarios (nome,email,senha,admin) VALUES (%s,%s,%s,0)",
+            (nome, email, senha)
+        )
+        conexao.commit()
+        return redirect("/login")
+    return render_template("cadastro.html")
+
+
+@app.route("/login", methods=["GET","POST"])
+def login():
+    if request.method == "POST":
+        email = request.form["email"]
+        senha = request.form["senha"]
+
+        cursor.execute("SELECT * FROM Usuarios WHERE email=%s", (email,))
+        user = cursor.fetchone()
+
+        if user and user["senha"] == senha:
+            session["usuario_id"] = user["id"]
+            session["usuario_nome"] = user["nome"]
+            session["usuario_admin"] = user["admin"]
+            return redirect("/produtos")
+        else:
+            return render_template("login.html", erro="Email ou senha incorretos")
+    return render_template("login.html")
+
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/")
+
+
 @app.route("/produtos")
+@login_required
 def listar_produtos():
     cursor.execute("SELECT * FROM Produtos")
     produtos = cursor.fetchall()
     return render_template("produtos.html", produtos=produtos)
 
+@app.route("/finalizar-compra", methods=["POST"])
+@login_required
+def finalizar_compra():
+    usuario_id = session["usuario_id"]
+    pagamento = request.form["pagamento"]
 
-# -----------------------------
-# Formulário novo produto
-# -----------------------------
+    cursor.execute("DELETE FROM Carrinho WHERE usuario_id=%s", (usuario_id,))
+    conexao.commit()
+
+    mensagem = f"Pedido feito com sucesso! Forma de pagamento: {pagamento}. Será entregue nos próximos dias."
+    return render_template("pedido_feito.html", mensagem=mensagem)
+
+
+
 @app.route("/novo")
+@admin_required
 def novo_produto():
     return render_template("novo-produto.html")
 
-
-# -----------------------------
-# Salvar novo produto
-# -----------------------------
 @app.route("/salvar-produto", methods=["POST"])
+@admin_required
 def salvar_produto():
     nome = request.form["nome"]
     preco = request.form["preco"]
-
-    sql = "INSERT INTO Produtos (nome, preco) VALUES (%s, %s)"
-    cursor.execute(sql, (nome, preco))
+    cursor.execute("INSERT INTO Produtos (nome, preco) VALUES (%s,%s)", (nome, preco))
     conexao.commit()
-
     return redirect("/produtos")
 
+@app.route("/editar/<int:id>")
+@admin_required
+def editar_produto(id):
+    cursor.execute("SELECT * FROM Produtos WHERE id=%s", (id,))
+    produto = cursor.fetchone()
+    return render_template("editar-produto.html", produto=produto)
 
-# -----------------------------
-# Deletar produto
-# -----------------------------
+@app.route("/atualizar-produto/<int:id>", methods=["POST"])
+@admin_required
+def atualizar_produto(id):
+    nome = request.form["nome"]
+    preco = request.form["preco"]
+    cursor.execute("UPDATE Produtos SET nome=%s, preco=%s WHERE id=%s", (nome, preco, id))
+    conexao.commit()
+    return redirect("/produtos")
+
 @app.route("/delete/<int:id>")
+@admin_required
 def delete(id):
     cursor.execute("DELETE FROM Produtos WHERE id=%s", (id,))
     conexao.commit()
     return redirect("/produtos")
 
 
-# -----------------------------
-# Editar produto
-# -----------------------------
-@app.route("/editar/<int:id>")
-def editar_produto(id):
-    cursor.execute("SELECT * FROM Produtos WHERE id=%s", (id,))
-    produto = cursor.fetchone()
-    return render_template("editar-produto.html", produto=produto)
-
-
-# -----------------------------
-# Atualizar produto
-# -----------------------------
-@app.route("/atualizar-produto/<int:id>", methods=["POST"])
-def atualizar_produto(id):
-    nome = request.form["nome"]
-    preco = request.form["preco"]
-
-    sql = "UPDATE Produtos SET nome=%s, preco=%s WHERE id=%s"
-    cursor.execute(sql, (nome, preco, id))
-    conexao.commit()
-
-    return redirect("/produtos")
-
-
-# -----------------------------
-# Adicionar produto ao carrinho
-# -----------------------------
 @app.route("/colocar/<int:produto_id>")
+@login_required
 def colocar_no_carrinho(produto_id):
-    # Carrinho global (sem usuário)
-    cursor.execute("SELECT * FROM Carrinho WHERE produto_id=%s", (produto_id,))
+    usuario_id = session["usuario_id"]
+    cursor.execute("SELECT * FROM Carrinho WHERE produto_id=%s AND usuario_id=%s", (produto_id, usuario_id))
     item = cursor.fetchone()
     if item:
-        cursor.execute(
-            "UPDATE Carrinho SET quantidade = quantidade + 1 WHERE id=%s", (item["id"],)
-        )
+        cursor.execute("UPDATE Carrinho SET quantidade = quantidade + 1 WHERE id=%s", (item["id"],))
     else:
-        cursor.execute(
-            "INSERT INTO Carrinho (produto_id, quantidade) VALUES (%s, 1)",
-            (produto_id,),
-        )
+        cursor.execute("INSERT INTO Carrinho (produto_id, quantidade, usuario_id) VALUES (%s,1,%s)", (produto_id, usuario_id))
     conexao.commit()
     return redirect("/produtos")
 
-
-# -----------------------------
-# Página do carrinho
-# -----------------------------
 @app.route("/carrinho")
+@login_required
 def carrinho():
-    cursor.execute(
-        """
+    usuario_id = session["usuario_id"]
+    cursor.execute("""
         SELECT c.id, p.nome, p.preco, c.quantidade
         FROM Carrinho c
         JOIN Produtos p ON c.produto_id = p.id
-    """
-    )
+        WHERE c.usuario_id = %s
+    """, (usuario_id,))
     carrinho = cursor.fetchall()
-
-    total = sum(item["preco"] * item["quantidade"] for item in carrinho)
-
+    total = sum(item["preco"]*item["quantidade"] for item in carrinho)
     return render_template("carrinho.html", carrinho=carrinho, total=total)
 
-
-# -----------------------------
-# Remover item do carrinho
-# -----------------------------
 @app.route("/carrinho/deletar/<int:id>")
+@login_required
 def deletar_carrinho(id):
-    # Remove o item do carrinho pelo id
     cursor.execute("DELETE FROM Carrinho WHERE id=%s", (id,))
     conexao.commit()
     return redirect("/carrinho")
 
 
-# -----------------------------
-# Rodar app
-# -----------------------------
 if __name__ == "__main__":
     app.run(debug=True)
