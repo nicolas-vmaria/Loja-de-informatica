@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lista de Produtos</title>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Produtos disponíveis</h1>
+
+      {% for p in produtos%}
+      <div class="card">
+        <h3>{{p.nome}}</h3>
+        <p class="preco">Preço: {{p.preco}}</p>
+
+        <div class="botoes">
+          <a
+            id="deletar"
+            href="/delete/{{p.id}}"
+            onclick="return confirm('Tem certeza que quer deletar?')"
+            >Deletar</a
+          >
+          <a id="editar" href="/editar/{{ p.id }}">Editar</a>
+          <a
+            href="/colocar/{{p.id}}"
+            onclick="return confirm('Tem certeza que quer adicionar ao carrinho?')"
+            >Adicionar ao Carrinho</a
+          >
+        </div>
+      </div>
+      {% endfor%}
+    </div>
+    <p><a id="cadastro" href="/novo">Cadastrar um produto</a></p>
+    <p><a id="voltar" href="/">Voltar</a></p>
+  </body>
+</html>
