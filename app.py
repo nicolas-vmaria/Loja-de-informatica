@@ -5,7 +5,9 @@ from functools import wraps
 app = Flask(__name__)
 app.secret_key = "chave_segura"
 
-
+# -----------------------------
+# Conexão com o banco
+# -----------------------------
 conexao = mysql.connector.connect(
     host="localhost",
     port="3306",
@@ -15,7 +17,9 @@ conexao = mysql.connector.connect(
 )
 cursor = conexao.cursor(dictionary=True)
 
-
+# -----------------------------
+# Helpers / decorators
+# -----------------------------
 def login_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -32,21 +36,29 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated
 
+def buscar_categorias():
+    cursor.execute("SELECT DISTINCT categoria FROM Produtos WHERE categoria IS NOT NULL AND categoria <> ''")
+    rows = cursor.fetchall()
+    return [r["categoria"] for r in rows]
 
+# -----------------------------
+# Rota inicial
+# -----------------------------
 @app.route("/")
 def index():
     if "usuario_id" in session:
         return redirect("/produtos")
     return render_template("index.html")
 
-
+# -----------------------------
+# Cadastro (não permite admin)
+# -----------------------------
 @app.route("/cadastro", methods=["GET", "POST"])
 def cadastro():
     if request.method == "POST":
         nome = request.form["nome"]
         email = request.form["email"]
         senha = request.form["senha"]
-
         cursor.execute(
             "INSERT INTO Usuarios (nome,email,senha,admin) VALUES (%s,%s,%s,0)",
             (nome, email, senha)
@@ -55,7 +67,9 @@ def cadastro():
         return redirect("/login")
     return render_template("cadastro.html")
 
-
+# -----------------------------
+# Login
+# -----------------------------
 @app.route("/login", methods=["GET","POST"])
 def login():
     if request.method == "POST":
@@ -68,40 +82,61 @@ def login():
         if user and user["senha"] == senha:
             session["usuario_id"] = user["id"]
             session["usuario_nome"] = user["nome"]
-            session["usuario_admin"] = user["admin"]
+            session["usuario_admin"] = user.get("admin", 0)
             return redirect("/produtos")
         else:
             return render_template("login.html", erro="Email ou senha incorretos")
     return render_template("login.html")
 
-
+# -----------------------------
+# Logout
+# -----------------------------
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect("/")
 
-
+# -----------------------------
+# Listar produtos (todos)
+# -----------------------------
 @app.route("/produtos")
 @login_required
 def listar_produtos():
     cursor.execute("SELECT * FROM Produtos")
     produtos = cursor.fetchall()
-    return render_template("produtos.html", produtos=produtos)
+    categorias = buscar_categorias()
+    return render_template("produtos.html", produtos=produtos, categorias=categorias)
 
+# -----------------------------
+# Filtrar por categoria
+# -----------------------------
+@app.route("/categoria/<categoria>")
+@login_required
+def produtos_por_categoria(categoria):
+    cursor.execute("SELECT * FROM Produtos WHERE categoria=%s", (categoria,))
+    produtos = cursor.fetchall()
+    categorias = buscar_categorias()
+    return render_template("produtos.html", produtos=produtos, categorias=categorias, categoria_atual=categoria)
+
+# -----------------------------
+# Finalizar compra (checkout)
+# -----------------------------
 @app.route("/finalizar-compra", methods=["POST"])
 @login_required
 def finalizar_compra():
     usuario_id = session["usuario_id"]
-    pagamento = request.form["pagamento"]
+    pagamento = request.form.get("pagamento", "não informado")
 
+    # Limpar carrinho do usuário
     cursor.execute("DELETE FROM Carrinho WHERE usuario_id=%s", (usuario_id,))
     conexao.commit()
 
     mensagem = f"Pedido feito com sucesso! Forma de pagamento: {pagamento}. Será entregue nos próximos dias."
     return render_template("pedido_feito.html", mensagem=mensagem)
 
-
-
+# -----------------------------
+# CRUD Produtos (apenas admin)
+# -----------------------------
 @app.route("/novo")
 @admin_required
 def novo_produto():
@@ -112,7 +147,8 @@ def novo_produto():
 def salvar_produto():
     nome = request.form["nome"]
     preco = request.form["preco"]
-    cursor.execute("INSERT INTO Produtos (nome, preco) VALUES (%s,%s)", (nome, preco))
+    categoria = request.form.get("categoria", "")
+    cursor.execute("INSERT INTO Produtos (nome, preco, categoria) VALUES (%s,%s,%s)", (nome, preco, categoria))
     conexao.commit()
     return redirect("/produtos")
 
@@ -128,7 +164,8 @@ def editar_produto(id):
 def atualizar_produto(id):
     nome = request.form["nome"]
     preco = request.form["preco"]
-    cursor.execute("UPDATE Produtos SET nome=%s, preco=%s WHERE id=%s", (nome, preco, id))
+    categoria = request.form.get("categoria", "")
+    cursor.execute("UPDATE Produtos SET nome=%s, preco=%s, categoria=%s WHERE id=%s", (nome, preco, categoria, id))
     conexao.commit()
     return redirect("/produtos")
 
@@ -139,7 +176,9 @@ def delete(id):
     conexao.commit()
     return redirect("/produtos")
 
-
+# -----------------------------
+# Carrinho
+# -----------------------------
 @app.route("/colocar/<int:produto_id>")
 @login_required
 def colocar_no_carrinho(produto_id):
@@ -174,6 +213,8 @@ def deletar_carrinho(id):
     conexao.commit()
     return redirect("/carrinho")
 
-
+# -----------------------------
+# Rodar app
+# -----------------------------
 if __name__ == "__main__":
     app.run(debug=True)

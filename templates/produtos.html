@@ -23,37 +23,62 @@
 </nav>
 
 <div class="container mt-4">
-  <h2 class="mb-4">Produtos disponíveis</h2>
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Produtos disponíveis</h2>
+
+    {% if categorias %}
+    <form method="get" class="d-flex align-items-center">
+      <label class="me-2 text-muted">Categoria:</label>
+      <div class="btn-group" role="group">
+        <a href="/produtos" class="btn btn-outline-secondary {% if not categoria_atual %}active{% endif %}">
+          Todas
+        </a>
+        {% for c in categorias %}
+          <a href="/categoria/{{ c }}" class="btn btn-outline-secondary {% if categoria_atual == c %}active{% endif %}">
+            {{ c }}
+          </a>
+        {% endfor %}
+      </div>
+    </form>
+    {% endif %}
+  </div>
 
   <div class="row">
-    {% for p in produtos %}
-    <div class="col-md-4">
-      <div class="card mb-4 shadow-sm">
-        <div class="card-body">
-          <h5 class="card-title">{{ p.nome }}</h5>
-          <p class="card-text">Preço: R$ {{ "%.2f"|format(p.preco) }}</p>
+    {% if produtos %}
+      {% for p in produtos %}
+      <div class="col-md-4">
+        <div class="card mb-4 shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">{{ p.nome }}</h5>
+            {% if p.categoria %}
+              <p class="text-muted small mb-1">Categoria: {{ p.categoria }}</p>
+            {% endif %}
+            <p class="card-text">Preço: R$ {{ "%.2f"|format(p.preco) }}</p>
 
-          {% if session.usuario_id %}
-            <a href="/colocar/{{ p.id }}" class="btn btn-primary w-100 mb-2">Adicionar ao Carrinho</a>
-          {% else %}
-            <a href="/login" class="btn btn-secondary w-100 mb-2">Login para comprar</a>
-          {% endif %}
+            {% if session.usuario_id %}
+              <a href="/colocar/{{ p.id }}" class="btn btn-primary w-100 mb-2">Adicionar ao Carrinho</a>
+            {% else %}
+              <a href="/login" class="btn btn-secondary w-100 mb-2">Login para comprar</a>
+            {% endif %}
 
-          <!-- Botões administrativos -->
-          {% if session.usuario_admin == 1 %}
+            {% if session.usuario_admin == 1 %}
             <div class="d-flex justify-content-between">
-            <a href="/editar/{{ p.id }}" class="btn btn-outline-warning btn-sm">Editar</a>
-            <a href="/delete/{{ p.id }}" class="btn btn-outline-danger btn-sm">Excluir</a>
+              <a href="/editar/{{ p.id }}" class="btn btn-outline-warning btn-sm">Editar</a>
+              <a href="/delete/{{ p.id }}" class="btn btn-outline-danger btn-sm">Excluir</a>
+            </div>
+            {% endif %}
           </div>
-          {% endif %}
         </div>
       </div>
-    </div>
-    {% endfor %}
+      {% endfor %}
+    {% else %}
+      <p class="text-center text-muted">Nenhum produto encontrado nesta categoria.</p>
+    {% endif %}
   </div>
 
   {% if session.usuario_admin == 1 %}
-  <div class="mt-3">
+  <div class="mt-3 text-end">
     <a href="/novo" class="btn btn-success">Cadastrar produto</a>
   </div>
   {% endif %}
