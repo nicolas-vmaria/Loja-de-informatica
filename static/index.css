@@ -1,0 +1,62 @@
+@font-face {
+  font-family: Now-Black;
+  src: url(../static/font/Now-Black-BF6542f712baf72.otf);
+}
+
+body{
+  background: 
+  linear-gradient(135deg, #1e1e1e 28%, #5F0EBB 100%);
+  
+  background-blend-mode: overlay;
+
+    height: 50vh;
+    overflow: hidden;
+    display: flex;
+    margin:250px auto;
+    text-align: center;
+    justify-content: center;
+    font-family: Now-Black;
+}
+
+.container {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
+  width: 500px;
+  max-width: 90%;
+  padding: 3rem;
+  text-align: center;
+}
+h3{
+    padding-top: 10px;
+    color: white;
+    font-size: 35px;
+}
+
+a {
+  display: block;
+  margin: 20px auto;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  width: 60%;
+  font-size: 16px;
+  background: linear-gradient(to right, #761fda,#5F0EBB);
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  font-family: 'Poppins', sans-serif;
+  text-decoration: none;
+}
+
+a:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+svg{
+  display: flex;
+  width: 500px;
+  margin: -400px auto;
+}

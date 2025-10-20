@@ -1,0 +1,93 @@
+body {
+  background: 
+  linear-gradient(135deg, #1e1e1e 28%, #5F0EBB 100%);
+  height: 100vh;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Poppins', sans-serif;
+  overflow: hidden;
+}
+
+.container {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
+  width: 500px;
+  max-width: 90%;
+  padding: 3rem;
+  text-align: center;
+}
+
+h3 {
+  margin-bottom: 30px;
+  color: #fff;
+  font-size: 42px;
+  letter-spacing: 1px;
+}
+
+label {
+  color: #fff;
+  font-size: 16px;
+  display: block;
+  text-align: left;
+  margin: 10px 0 5px 10%;
+}
+
+input {
+  display: block;
+  margin: 0 auto 20px auto;
+  padding: 12px;
+  width: 80%;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  font-size: 16px;
+  transition: background 0.3s ease;
+}
+
+input:focus {
+  background: rgba(255, 255, 255, 0.3);
+  border: 1px solid #5F0EBB;
+}
+
+button {
+  display: block;
+  margin: 20px auto;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  width: 60%;
+  font-size: 16px;
+  background: linear-gradient(to right, #761fda,#5F0EBB);
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+a {
+  color: #a15bf1;
+  text-decoration: none;
+  transition: color 0.3s ease;
+  font-weight: bold;
+}
+
+a:hover {
+  color: #761fda;
+}
+
+p {
+  color: #fff;
+  font-size: 15px;
+  margin-top: 20px;
+}
