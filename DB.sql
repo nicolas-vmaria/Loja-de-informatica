@@ -26,11 +26,7 @@ CREATE TABLE Carrinho (
 );
 
 
--- Produtos
-INSERT INTO Produtos (nome, preco) VALUES
-('Teclado Mecânico', 350.00),
-('Mouse Gamer', 150.00),
-('Monitor 24"', 900.00);
+
 
 -- Carrinho
 INSERT INTO Carrinho (produto_id, quantidade) VALUES
@@ -40,13 +36,15 @@ INSERT INTO Carrinho (produto_id, quantidade) VALUES
 ALTER TABLE Carrinho ADD COLUMN usuario_id INT NULL;
 ALTER TABLE Carrinho ADD FOREIGN KEY (usuario_id) REFERENCES Usuarios(id) ON DELETE CASCADE;
 
-ALTER TABLE Usuarios ADD COLUMN admin TINYINT(1) DEFAULT 0;
+ALTER TABLE Usuarios ADD COLUMN imagem_id TINYINT(1) DEFAULT 0;
+
+ALTER TABLE Produtos ADD COLUMN imagem_id 
 
 -- Definir um usuário como administrador
 INSERT INTO Usuarios (nome, email, senha, admin)
 VALUES ('Administrador', 'adm@gmail.com', '123', 1);
 
-ALTER TABLE Produtos ADD categoria VARCHAR(50);
+ALTER TABLE Produtos ADD COLUMN estoque int;
 
 SELECT DISTINCT categoria FROM Produtos;
 
@@ -90,5 +88,33 @@ INSERT INTO Produtos (nome, preco, categoria) VALUES
 ('Cadeira Ergonômica Flexform Alpha', 1399.00, 'Cadeiras'),
 ('Cadeira Gamer Razer Iskur', 1899.00, 'Cadeiras');
 
+SET SQL_SAFE_UPDATES = 0;
+UPDATE Produtos SET estoque = 35 WHERE nome = 'Teclado Mecânico Redragon Kumara RGB';
+UPDATE Produtos SET estoque = 22 WHERE nome = 'Mouse Gamer Logitech G203';
+UPDATE Produtos SET estoque = 14 WHERE nome = 'Headset Gamer HyperX Cloud II';
+UPDATE Produtos SET estoque = 47 WHERE nome = 'Mousepad RGB Razer Goliathus';
+UPDATE Produtos SET estoque = 18 WHERE nome = 'Webcam Logitech C920 Full HD';
+UPDATE Produtos SET estoque = 29 WHERE nome = 'Teclado sem fio Logitech K380';
+UPDATE Produtos SET estoque = 42 WHERE nome = 'Mouse sem fio Microsoft Bluetooth';
+UPDATE Produtos SET estoque = 25 WHERE nome = 'Headset Razer Kraken X';
 
+UPDATE Produtos SET estoque = 17 WHERE nome = 'Monitor LG Ultrawide 29"';
+UPDATE Produtos SET estoque = 9 WHERE nome = 'Monitor Samsung Odyssey G5 27"';
+UPDATE Produtos SET estoque = 26 WHERE nome = 'Monitor AOC 24G2 144Hz';
+UPDATE Produtos SET estoque = 33 WHERE nome = 'Monitor Dell P2422H 24"';
 
+UPDATE Produtos SET estoque = 11 WHERE nome = 'Placa de Vídeo RTX 3060 12GB';
+UPDATE Produtos SET estoque = 27 WHERE nome = 'Placa-Mãe ASUS Prime B550M';
+UPDATE Produtos SET estoque = 38 WHERE nome = 'Memória RAM Corsair Vengeance 16GB DDR4';
+UPDATE Produtos SET estoque = 44 WHERE nome = 'Fonte Corsair CV650 650W 80 Plus Bronze';
+UPDATE Produtos SET estoque = 31 WHERE nome = 'SSD Kingston NV2 1TB NVMe';
+UPDATE Produtos SET estoque = 36 WHERE nome = 'HD Seagate Barracuda 2TB';
+UPDATE Produtos SET estoque = 20 WHERE nome = 'Gabinete Cooler Master MB520 RGB';
+
+UPDATE Produtos SET estoque = 12 WHERE nome = 'Cadeira Gamer ThunderX3 TGC12';
+UPDATE Produtos SET estoque = 21 WHERE nome = 'Cadeira Gamer DT3 Elise';
+UPDATE Produtos SET estoque = 15 WHERE nome = 'Cadeira Ergonômica Flexform Alpha';
+UPDATE Produtos SET estoque = 8 WHERE nome = 'Cadeira Gamer Razer Iskur';
+SET SQL_SAFE_UPDATES = 1;
+
+select * from Produtos;
