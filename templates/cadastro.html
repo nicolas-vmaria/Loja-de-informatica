@@ -14,6 +14,14 @@
   <body>
     <div class="container">
       <h3>Criar Conta</h3>
+
+      {% if request.args.get('erro') %}
+      <div class="alert alert-warning" style="color:white">
+       {{ request.args.get('erro') }}
+      </div>
+      {% endif %}
+
+
       <form method="POST">
         <label>Nome</label>
         <input type="text" name="nome" placeholder="Digite seu Nome" required />

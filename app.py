@@ -59,13 +59,23 @@ def cadastro():
         nome = request.form["nome"]
         email = request.form["email"]
         senha = request.form["senha"]
+
         cursor.execute(
-            "INSERT INTO Usuarios (nome,email,senha,admin) VALUES (%s,%s,%s,0)",
+            "INSERT INTO Usuarios (nome, email, senha, admin) VALUES (%s, %s, %s, 0)",
             (nome, email, senha)
         )
         conexao.commit()
-        return redirect("/login")
+
+        usuario_id = cursor.lastrowid
+
+        session["usuario_id"] = usuario_id
+        session["usuario_nome"] = nome
+        session["usuario_admin"] = 0  
+
+        return redirect("/produtos")
+
     return render_template("cadastro.html")
+
 
 # -----------------------------
 # Login
@@ -73,20 +83,36 @@ def cadastro():
 @app.route("/login", methods=["GET","POST"])
 def login():
     if request.method == "POST":
+
         email = request.form["email"]
         senha = request.form["senha"]
 
+        
         cursor.execute("SELECT * FROM Usuarios WHERE email=%s", (email,))
-        user = cursor.fetchone()
+        user = cursor.fetchone()  
 
-        if user and user["senha"] == senha:
-            session["usuario_id"] = user["id"]
-            session["usuario_nome"] = user["nome"]
-            session["usuario_admin"] = user.get("admin", 0)
-            return redirect("/produtos")
-        else:
-            return render_template("login.html", erro="Email ou senha incorretos")
+       
+        if not user:
+        
+            erro = "Usuário não encontrado. Cadastre-se primeiro."
+            return redirect(f"/cadastro?erro={erro}")
+
+        
+        if user["senha"] != senha:
+           
+            return render_template("login.html", erro="Senha incorreta.")
+
+        
+        session["usuario_id"] = user["id"]
+        session["usuario_nome"] = user["nome"]
+        session["usuario_admin"] = user.get("admin", 0)
+
+        
+        return redirect("/produtos")
+
+    
     return render_template("login.html")
+
 
 # -----------------------------
 # Logout
