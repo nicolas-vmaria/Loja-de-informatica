@@ -10,9 +10,9 @@ app.secret_key = "chave_segura"
 # -----------------------------
 conexao = mysql.connector.connect(
     host="localhost",
-    port="3306",
+    port="3406",
     user="root",
-    password="12345678",
+    password="",
     database="loja_informatica"
 )
 cursor = conexao.cursor(dictionary=True)
@@ -60,6 +60,12 @@ def cadastro():
         email = request.form["email"]
         senha = request.form["senha"]
 
+        cursor.execute("SELECT * FROM Usuarios WHERE email = %s", (email,))
+        usuario_existente = cursor.fetchone()
+
+        if usuario_existente:
+            return render_template("cadastro.html", erro="Email cadastrado.")
+
         cursor.execute(
             "INSERT INTO Usuarios (nome, email, senha, admin) VALUES (%s, %s, %s, 0)",
             (nome, email, senha)
@@ -75,6 +81,7 @@ def cadastro():
         return redirect("/produtos")
 
     return render_template("cadastro.html")
+
 
 
 # -----------------------------
