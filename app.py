@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, session
 import mysql.connector
 from functools import wraps
+import unicodedata
 
 app = Flask(__name__)
 app.secret_key = "chave_segura"
@@ -10,9 +11,9 @@ app.secret_key = "chave_segura"
 # -----------------------------
 conexao = mysql.connector.connect(
     host="localhost",
-    port="3306",
+    port="3406",
     user="root",
-    password="12345678",
+    password="",
     database="loja_informatica"
 )
 cursor = conexao.cursor(dictionary=True)
@@ -168,12 +169,30 @@ def finalizar_compra():
 def novo_produto():
     return render_template("novo-produto.html")
 
+def normalizar_categoria(categoria):
+    mapa = {
+        "perifericos": "Periféricos",
+        "periferico": "Periféricos",
+        "monitores": "Monitores",
+        "monitor": "Monitores",
+        "componentes": "Componentes",
+        "componente": "Componentes",
+        "cadeira":"Cadeiras",
+        "cadeiras":"Cadeiras",
+        "outros": "Outros"
+    }
+    chave = unicodedata.normalize('NFKD', categoria.strip().lower()).encode('ASCII', 'ignore').decode('ASCII')
+    return mapa.get(chave, categoria.strip().capitalize())
+
+
+
 @app.route("/salvar-produto", methods=["POST"])
 @admin_required
 def salvar_produto():
     nome = request.form["nome"]
     preco = request.form["preco"]
     categoria = request.form.get("categoria", "")
+    categoria = normalizar_categoria(categoria)
     cursor.execute("INSERT INTO Produtos (nome, preco, categoria) VALUES (%s,%s,%s)", (nome, preco, categoria))
     conexao.commit()
     return redirect("/produtos")
@@ -191,6 +210,7 @@ def atualizar_produto(id):
     nome = request.form["nome"]
     preco = request.form["preco"]
     categoria = request.form.get("categoria", "")
+    categoria = normalizar_categoria(categoria)
     cursor.execute("UPDATE Produtos SET nome=%s, preco=%s, categoria=%s WHERE id=%s", (nome, preco, categoria, id))
     conexao.commit()
     return redirect("/produtos")
