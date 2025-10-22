@@ -10,9 +10,9 @@ app.secret_key = "chave_segura"
 # -----------------------------
 conexao = mysql.connector.connect(
     host="localhost",
-    port="3406",
+    port="3306",
     user="root",
-    password="",
+    password="12345678",
     database="loja_informatica"
 )
 cursor = conexao.cursor(dictionary=True)
