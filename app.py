@@ -160,12 +160,12 @@ def finalizar_compra():
     usuario_id = session["usuario_id"]
     pagamento = request.form.get("pagamento", "não informado")
 
-    # Limpar carrinho do usuário
     cursor.execute("DELETE FROM Carrinho WHERE usuario_id=%s", (usuario_id,))
     conexao.commit()
 
     mensagem = f"Pedido feito com sucesso! Forma de pagamento: {pagamento}. Será entregue nos próximos dias."
-    return render_template("pedido_feito.html", mensagem=mensagem)
+    return f"<div class='mensagem'>{mensagem}</div>"
+
 
 # -----------------------------
 # CRUD Produtos (apenas admin)
