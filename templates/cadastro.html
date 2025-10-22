@@ -43,6 +43,10 @@
         />
 
         <button type="submit">Cadastrar</button>
+
+        {% if erro %}
+          <p style="color:red ">{{erro}}</p>
+        {% endif %}
       </form>
       <p>Já tem conta? <a href="/login">Entrar</a></p>
     </div>
