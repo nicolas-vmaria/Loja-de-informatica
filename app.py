@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, session
 import mysql.connector
 from functools import wraps
+import unicodedata
 
 app = Flask(__name__)
 app.secret_key = "chave_segura"
@@ -60,6 +61,12 @@ def cadastro():
         email = request.form["email"]
         senha = request.form["senha"]
 
+        cursor.execute("SELECT * FROM Usuarios WHERE email = %s", (email,))
+        usuario_existente = cursor.fetchone()
+
+        if usuario_existente:
+            return render_template("cadastro.html", erro="Email cadastrado.")
+
         cursor.execute(
             "INSERT INTO Usuarios (nome, email, senha, admin) VALUES (%s, %s, %s, 0)",
             (nome, email, senha)
@@ -75,6 +82,7 @@ def cadastro():
         return redirect("/produtos")
 
     return render_template("cadastro.html")
+
 
 
 # -----------------------------
@@ -153,12 +161,12 @@ def finalizar_compra():
     usuario_id = session["usuario_id"]
     pagamento = request.form.get("pagamento", "não informado")
 
-    # Limpar carrinho do usuário
     cursor.execute("DELETE FROM Carrinho WHERE usuario_id=%s", (usuario_id,))
     conexao.commit()
 
     mensagem = f"Pedido feito com sucesso! Forma de pagamento: {pagamento}. Será entregue nos próximos dias."
-    return render_template("pedido_feito.html", mensagem=mensagem)
+    return f"<div class='mensagem'>{mensagem}</div>"
+
 
 # -----------------------------
 # CRUD Produtos (apenas admin)
@@ -168,12 +176,30 @@ def finalizar_compra():
 def novo_produto():
     return render_template("novo-produto.html")
 
+def normalizar_categoria(categoria):
+    mapa = {
+        "perifericos": "Periféricos",
+        "periferico": "Periféricos",
+        "monitores": "Monitores",
+        "monitor": "Monitores",
+        "componentes": "Componentes",
+        "componente": "Componentes",
+        "cadeira":"Cadeiras",
+        "cadeiras":"Cadeiras",
+        "outros": "Outros"
+    }
+    chave = unicodedata.normalize('NFKD', categoria.strip().lower()).encode('ASCII', 'ignore').decode('ASCII')
+    return mapa.get(chave, categoria.strip().capitalize())
+
+
+
 @app.route("/salvar-produto", methods=["POST"])
 @admin_required
 def salvar_produto():
     nome = request.form["nome"]
     preco = request.form["preco"]
     categoria = request.form.get("categoria", "")
+    categoria = normalizar_categoria(categoria)
     cursor.execute("INSERT INTO Produtos (nome, preco, categoria) VALUES (%s,%s,%s)", (nome, preco, categoria))
     conexao.commit()
     return redirect("/produtos")
@@ -191,6 +217,7 @@ def atualizar_produto(id):
     nome = request.form["nome"]
     preco = request.form["preco"]
     categoria = request.form.get("categoria", "")
+    categoria = normalizar_categoria(categoria)
     cursor.execute("UPDATE Produtos SET nome=%s, preco=%s, categoria=%s WHERE id=%s", (nome, preco, categoria, id))
     conexao.commit()
     return redirect("/produtos")

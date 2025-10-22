@@ -119,15 +119,17 @@ UPDATE Produtos SET estoque = 15 WHERE nome = 'Cadeira Ergonômica Flexform Alph
 UPDATE Produtos SET estoque = 8 WHERE nome = 'Cadeira Gamer Razer Iskur';
 SET SQL_SAFE_UPDATES = 1;
 
-select * from Produtos;	
+SET SQL_SAFE_UPDATES = 0;
+UPDATE Produtos SET categoria = 'Periféricos'
+WHERE LOWER(categoria) IN ('perifericos', 'periferico', 'periféricos', 'periférico');
+UPDATE Produtos SET categoria = 'Monitores'
+WHERE LOWER(categoria) IN ('Monitor', 'monitor', 'monitores');
+UPDATE Produtos SET categoria = 'Componentes'
+WHERE LOWER(categoria) IN ('componentes', 'componente', 'Componente');
+UPDATE Produtos SET categoria = 'Cadeiras'
+WHERE LOWER(categoria) IN ('cadeira', 'cadeiras', 'Cadeira');
+SET SQL_SAFE_UPDATES = 1;
 
-ALTER TABLE Produtos AUTO_INCREMENT = 1;
-
-SET @count = 0;
-UPDATE Produtos SET id = @count:= @count + 1;
-
-
-DELETE t1 FROM Produtos AS t1
-INNER JOIN Produtos AS t2
-WHERE t1.nome = t2.nome AND t1.id < t2.id;
+	
+select * from Produtos;
 
