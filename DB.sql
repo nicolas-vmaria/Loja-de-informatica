@@ -28,17 +28,11 @@ CREATE TABLE Carrinho (
 
 
 
--- Carrinho
-INSERT INTO Carrinho (produto_id, quantidade) VALUES
-(1, 1),
-(3, 1);
-
 ALTER TABLE Carrinho ADD COLUMN usuario_id INT NULL;
 ALTER TABLE Carrinho ADD FOREIGN KEY (usuario_id) REFERENCES Usuarios(id) ON DELETE CASCADE;
-
+ALTER TABLE Produtos ADD COLUMN categoria VARCHAR(50);
 ALTER TABLE Usuarios ADD COLUMN imagem_id TINYINT(1) DEFAULT 0;
-
-ALTER TABLE Produtos ADD COLUMN imagem_id 
+ALTER TABLE Usuarios ADD COLUMN admin tinyint(1) default 0;
 
 -- Definir um usuário como administrador
 INSERT INTO Usuarios (nome, email, senha, admin)
@@ -67,6 +61,8 @@ INSERT INTO Produtos (nome, preco, categoria) VALUES
 ('Mouse sem fio Microsoft Bluetooth', 179.00, 'Periféricos'),
 ('Headset Razer Kraken X', 399.00, 'Periféricos'),
 
+
+
 -- Monitores
 ('Monitor LG Ultrawide 29"', 1299.00, 'Monitores'),
 ('Monitor Samsung Odyssey G5 27"', 1999.00, 'Monitores'),
@@ -87,6 +83,11 @@ INSERT INTO Produtos (nome, preco, categoria) VALUES
 ('Cadeira Gamer DT3 Elise', 999.00, 'Cadeiras'),
 ('Cadeira Ergonômica Flexform Alpha', 1399.00, 'Cadeiras'),
 ('Cadeira Gamer Razer Iskur', 1899.00, 'Cadeiras');
+
+-- Carrinho
+INSERT INTO Carrinho (produto_id, quantidade) VALUES
+(1, 1),
+(3, 1);
 
 SET SQL_SAFE_UPDATES = 0;
 UPDATE Produtos SET estoque = 35 WHERE nome = 'Teclado Mecânico Redragon Kumara RGB';

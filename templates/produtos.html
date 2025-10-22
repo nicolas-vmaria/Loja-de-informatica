@@ -347,7 +347,10 @@
             <p class="card-text">R$ {{ "%.2f"|format(p.preco) }}</p>
 
             {% if session.usuario_id %}
-            <a href="/colocar/{{ p.id }}" class="add-carrinho"><button class="btn-carrinho">Adicionar ao
+            <a href="/colocar/{{ p.id }}" class="add-carrinho" 
+            onclick="if(confirm('Você realmete quer adicionar ao carrinho?'))
+            {   alert('Produto adicionado com sucesso!'); return true; } 
+            else{ return false}"><button class="btn-carrinho">Adicionar ao
                 Carrinho</button></a>
             {% else %}
             <a href="/login" class="btn btn-secondary w-100 mb-2">Login para comprar</a>
