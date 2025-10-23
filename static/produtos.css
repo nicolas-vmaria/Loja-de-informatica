@@ -124,6 +124,13 @@ span {
     gap: 50px;
 }
 
+.card-info p{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
 .card-title {
     padding: 0px;
     margin: 10px;

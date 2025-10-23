@@ -445,17 +445,40 @@
                 </p>
                 {% endif %}
                 <p class="card-text">R$ {{ "%.2f"|format(p.preco) }}</p>
+                {% if session.usuario_id%}
+                {% if p.estoque <= 5 %}
+                <p>Ultimas unidades</p>
+                {% endif %}
+                {% endif %}
+                {% if session.usuario_id == 1 %}
+                {% if p.estoque <= 5 %}
+                <p> Estoque: <span style="color: red;">{{ p.estoque }}</span>
+                </p>
+                {% else %}
+                <p>Estoque: {{ p.estoque }}</p>
+                {% endif %}
+                {% endif %}
+
+                
+                
               </div>
 
               {% if session.usuario_id %}
+              {% if p.estoque <= 0 %}
+              <a
+                href="#"
+                class="add-carrinho"
+                onclick="return alert('Produto sem estoque')"
+                ><button class="btn-carrinho">Adicionar ao Carrinho</button></a>
+              {%else%}
               <a
                 href="/colocar/{{ p.id }}"
                 class="add-carrinho"
                 onclick="if(confirm('Você realmete quer adicionar ao carrinho?'))
-            {   alert('Produto adicionado com sucesso!'); return true; } 
-            else{ return false}"
-                ><button class="btn-carrinho">Adicionar ao Carrinho</button></a
-              >
+                {   alert('Produto adicionado com sucesso!'); return true; } 
+                else{ return false}"
+                ><button class="btn-carrinho">Adicionar ao Carrinho</button></a>
+              {%endif%}
               {% else %}
               <a href="/login" class="btn btn-secondary w-100 mb-2"
                 >Login para comprar</a
@@ -473,6 +496,7 @@
                     Excluir
                   </button></a
                 >
+
               </div>
               {% endif %}
             </div>
