@@ -2,218 +2,79 @@
 CREATE DATABASE IF NOT EXISTS loja_informatica;
 USE loja_informatica;
 
+-- ==============================
+-- TABELA: Usuários
+-- ==============================
 CREATE TABLE Usuarios (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
-    senha VARCHAR(255) NOT NULL
+    senha VARCHAR(255) NOT NULL,
+    admin TINYINT(1) DEFAULT 0
 );
 
-
--- Produtos
+-- ==============================
+-- TABELA: Produtos
+-- ==============================
 CREATE TABLE Produtos (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
-    preco DECIMAL(10,2) NOT NULL
+    preco DECIMAL(10,2) NOT NULL,
+    categoria VARCHAR(50),
+    estoque INT DEFAULT 0,
+    id_imagem VARCHAR(20)
 );
 
--- Carrinho
+-- ==============================
+-- TABELA: Carrinho
+-- ==============================
 CREATE TABLE Carrinho (
     id INT AUTO_INCREMENT PRIMARY KEY,
     produto_id INT,
+    usuario_id INT,
     quantidade INT DEFAULT 1,
-    FOREIGN KEY (produto_id) REFERENCES Produtos(id) ON DELETE CASCADE
+    FOREIGN KEY (produto_id) REFERENCES Produtos(id) ON DELETE CASCADE,
+    FOREIGN KEY (usuario_id) REFERENCES Usuarios(id) ON DELETE CASCADE
 );
 
-
-
-
--- Carrinho
-INSERT INTO Carrinho (produto_id, quantidade) VALUES
-(1, 1),
-(3, 1);
-
-ALTER TABLE Carrinho ADD COLUMN usuario_id INT NULL;
-ALTER TABLE Carrinho ADD FOREIGN KEY (usuario_id) REFERENCES Usuarios(id) ON DELETE CASCADE;
-
-ALTER TABLE Usuarios ADD COLUMN imagem_id TINYINT(1) DEFAULT 0;
-
-ALTER TABLE Produtos ADD COLUMN imagem_id;
-
--- Definir um usuário como administrador
+-- ==============================
+-- USUÁRIO ADMINISTRADOR
+-- ==============================
 INSERT INTO Usuarios (nome, email, senha, admin)
 VALUES ('Administrador', 'adm@gmail.com', '123', 1);
 
-ALTER TABLE Produtos ADD COLUMN imagem_id VARCHAR(20);
-
-SELECT DISTINCT categoria FROM Produtos;
-
-SET SQL_SAFE_UPDATES = 0;
-UPDATE Produtos SET categoria='Periféricos' WHERE nome LIKE '%Mouse%' OR nome LIKE '%Teclado%';
-UPDATE Produtos SET categoria='Monitores' WHERE nome LIKE '%Monitor%';
-UPDATE Produtos SET categoria='Cadeiras' WHERE nome LIKE '%Cadeira%';
-SET SQL_SAFE_UPDATES = 1;
-
-
-
-INSERT INTO Produtos (nome, preco, categoria) VALUES
+-- ==============================
+-- PRODUTOS (com estoque e imagem)
+-- ==============================
+INSERT INTO Produtos (nome, preco, categoria, estoque, id_imagem) VALUES
 -- Periféricos
-('Teclado Mecânico Redragon Kumara RGB', 289.00, 'Periféricos'),
-('Mouse Gamer Logitech G203', 149.00, 'Periféricos'),
-('Headset Gamer HyperX Cloud II', 699.00, 'Periféricos'),
-('Mousepad RGB Razer Goliathus', 199.00, 'Periféricos'),
-('Webcam Logitech C920 Full HD', 499.00, 'Periféricos'),
-('Teclado sem fio Logitech K380', 239.00, 'Periféricos'),
-('Mouse sem fio Microsoft Bluetooth', 179.00, 'Periféricos'),
-('Headset Razer Kraken X', 399.00, 'Periféricos'),
+('Teclado Mecânico Redragon Kumara RGB', 289.00, 'Periféricos', 35, '17P01.png'),
+('Mouse Gamer Logitech G203', 149.00, 'Periféricos', 22, '18P02.png'),
+('Headset Gamer HyperX Cloud II', 699.00, 'Periféricos', 14, '19P03.png'),
+('Mousepad RGB Razer Goliathus', 199.00, 'Periféricos', 47, '20P04.png'),
+('Webcam Logitech C920 Full HD', 499.00, 'Periféricos', 18, '21P05.png'),
+('Teclado sem fio Logitech K380', 239.00, 'Periféricos', 29, '22P06.png'),
+('Mouse sem fio Microsoft Bluetooth', 179.00, 'Periféricos', 42, '23P07.png'),
+('Headset Razer Kraken X', 399.00, 'Periféricos', 25, '24P08.png'),
 
 -- Monitores
-('Monitor LG Ultrawide 29"', 1299.00, 'Monitores'),
-('Monitor Samsung Odyssey G5 27"', 1999.00, 'Monitores'),
-('Monitor AOC 24G2 144Hz', 1099.00, 'Monitores'),
-('Monitor Dell P2422H 24"', 999.00, 'Monitores'),
+('Monitor LG Ultrawide 29"', 1299.00, 'Monitores', 17, '12M01.png'),
+('Monitor Samsung Odyssey G5 27"', 1999.00, 'Monitores', 9, '13M02.png'),
+('Monitor AOC 24G2 144Hz', 1099.00, 'Monitores', 26, '14M03.png'),
+('Monitor Dell P2422H 24"', 999.00, 'Monitores', 33, '15M04.png'),
 
 -- Componentes
-('Placa de Vídeo RTX 3060 12GB', 2499.00, 'Componentes'),
-('Placa-Mãe ASUS Prime B550M', 799.00, 'Componentes'),
-('Memória RAM Corsair Vengeance 16GB DDR4', 379.00, 'Componentes'),
-('Fonte Corsair CV650 650W 80 Plus Bronze', 429.00, 'Componentes'),
-('SSD Kingston NV2 1TB NVMe', 449.00, 'Componentes'),
-('HD Seagate Barracuda 2TB', 379.00, 'Componentes'),
-('Gabinete Cooler Master MB520 RGB', 499.00, 'Componentes'),
+('Placa de Vídeo RTX 3060 12GB', 2499.00, 'Componentes', 11, '05C01.png'),
+('Placa-Mãe ASUS Prime B550M', 799.00, 'Componentes', 27, '06C02.png'),
+('Memória RAM Corsair Vengeance 16GB DDR4', 379.00, 'Componentes', 38, '07C03.png'),
+('Fonte Corsair CV650 650W 80 Plus Bronze', 429.00, 'Componentes', 44, '08C04.png'),
+('SSD Kingston NV2 1TB NVMe', 449.00, 'Componentes', 31, '09C05.png'),
+('HD Seagate Barracuda 2TB', 379.00, 'Componentes', 36, '10C06.png'),
+('Gabinete Cooler Master MB520 RGB', 499.00, 'Componentes', 20, '11C07.png'),
 
 -- Cadeiras
-('Cadeira Gamer ThunderX3 TGC12', 1199.00, 'Cadeiras'),
-('Cadeira Gamer DT3 Elise', 999.00, 'Cadeiras'),
-('Cadeira Ergonômica Flexform Alpha', 1399.00, 'Cadeiras'),
-('Cadeira Gamer Razer Iskur', 1899.00, 'Cadeiras');
-
-SET SQL_SAFE_UPDATES = 0;
-UPDATE Produtos SET estoque = 8 WHERE nome = 'Mouse Gamer';
-UPDATE Produtos SET estoque = 5 WHERE nome = 'Monitor 24"';
-UPDATE Produtos SET estoque = 35 WHERE nome = 'Teclado Mecânico Redragon Kumara RGB';
-UPDATE Produtos SET estoque = 22 WHERE nome = 'Mouse Gamer Logitech G203';
-UPDATE Produtos SET estoque = 14 WHERE nome = 'Headset Gamer HyperX Cloud II';
-UPDATE Produtos SET estoque = 47 WHERE nome = 'Mousepad RGB Razer Goliathus';
-UPDATE Produtos SET estoque = 18 WHERE nome = 'Webcam Logitech C920 Full HD';
-UPDATE Produtos SET estoque = 29 WHERE nome = 'Teclado sem fio Logitech K380';
-UPDATE Produtos SET estoque = 42 WHERE nome = 'Mouse sem fio Microsoft Bluetooth';
-UPDATE Produtos SET estoque = 25 WHERE nome = 'Headset Razer Kraken X';
-
-UPDATE Produtos SET estoque = 17 WHERE nome = 'Monitor LG Ultrawide 29"';
-UPDATE Produtos SET estoque = 9 WHERE nome = 'Monitor Samsung Odyssey G5 27"';
-UPDATE Produtos SET estoque = 26 WHERE nome = 'Monitor AOC 24G2 144Hz';
-UPDATE Produtos SET estoque = 33 WHERE nome = 'Monitor Dell P2422H 24"';
-
-UPDATE Produtos SET estoque = 11 WHERE nome = 'Placa de Vídeo RTX 3060 12GB';
-UPDATE Produtos SET estoque = 27 WHERE nome = 'Placa-Mãe ASUS Prime B550M';
-UPDATE Produtos SET estoque = 38 WHERE nome = 'Memória RAM Corsair Vengeance 16GB DDR4';
-UPDATE Produtos SET estoque = 44 WHERE nome = 'Fonte Corsair CV650 650W 80 Plus Bronze';
-UPDATE Produtos SET estoque = 31 WHERE nome = 'SSD Kingston NV2 1TB NVMe';
-UPDATE Produtos SET estoque = 36 WHERE nome = 'HD Seagate Barracuda 2TB';
-UPDATE Produtos SET estoque = 20 WHERE nome = 'Gabinete Cooler Master MB520 RGB';
-
-UPDATE Produtos SET estoque = 12 WHERE nome = 'Cadeira Gamer ThunderX3 TGC12';
-UPDATE Produtos SET estoque = 21 WHERE nome = 'Cadeira Gamer DT3 Elise';
-UPDATE Produtos SET estoque = 15 WHERE nome = 'Cadeira Ergonômica Flexform Alpha';
-UPDATE Produtos SET estoque = 8 WHERE nome = 'Cadeira Gamer Razer Iskur';
-SET SQL_SAFE_UPDATES = 1;
-
-SET SQL_SAFE_UPDATES = 0;
-UPDATE Produtos SET categoria = 'Periféricos'
-WHERE LOWER(categoria) IN ('perifericos', 'periferico', 'periféricos', 'periférico');
-UPDATE Produtos SET categoria = 'Monitores'
-WHERE LOWER(categoria) IN ('Monitor', 'monitor', 'monitores');
-UPDATE Produtos SET categoria = 'Componentes'
-WHERE LOWER(categoria) IN ('componentes', 'componente', 'Componente');
-UPDATE Produtos SET categoria = 'Cadeiras'
-WHERE LOWER(categoria) IN ('cadeira', 'cadeiras', 'Cadeira');
-SET SQL_SAFE_UPDATES = 1;
-
-
-SET SQL_SAFE_UPDATES = 0;
-UPDATE Produtos SET estoque = 8 WHERE nome = 'Mouse Gamer';
-UPDATE Produtos SET estoque = 8 WHERE nome = 'Teclado Mêcanico';
-UPDATE Produtos SET estoque = 5 WHERE nome = 'Monitor 24"';
-UPDATE Produtos SET estoque = 35 WHERE nome = 'Teclado Mecânico Redragon Kumara RGB';
-UPDATE Produtos SET estoque = 22 WHERE nome = 'Mouse Gamer Logitech G203';
-UPDATE Produtos SET estoque = 14 WHERE nome = 'Headset Gamer HyperX Cloud II';
-UPDATE Produtos SET estoque = 47 WHERE nome = 'Mousepad RGB Razer Goliathus';
-UPDATE Produtos SET estoque = 18 WHERE nome = 'Webcam Logitech C920 Full HD';
-UPDATE Produtos SET estoque = 29 WHERE nome = 'Teclado sem fio Logitech K380';
-UPDATE Produtos SET estoque = 42 WHERE nome = 'Mouse sem fio Microsoft Bluetooth';
-UPDATE Produtos SET estoque = 25 WHERE nome = 'Headset Razer Kraken X';
-
-UPDATE Produtos SET estoque = 17 WHERE nome = 'Monitor LG Ultrawide 29"';
-UPDATE Produtos SET estoque = 9 WHERE nome = 'Monitor Samsung Odyssey G5 27"';
-UPDATE Produtos SET estoque = 26 WHERE nome = 'Monitor AOC 24G2 144Hz';
-UPDATE Produtos SET estoque = 33 WHERE nome = 'Monitor Dell P2422H 24"';
-
-UPDATE Produtos SET estoque = 11 WHERE nome = 'Placa de Vídeo RTX 3060 12GB';
-UPDATE Produtos SET estoque = 27 WHERE nome = 'Placa-Mãe ASUS Prime B550M';
-UPDATE Produtos SET estoque = 38 WHERE nome = 'Memória RAM Corsair Vengeance 16GB DDR4';
-UPDATE Produtos SET estoque = 44 WHERE nome = 'Fonte Corsair CV650 650W 80 Plus Bronze';
-UPDATE Produtos SET estoque = 31 WHERE nome = 'SSD Kingston NV2 1TB NVMe';
-UPDATE Produtos SET estoque = 36 WHERE nome = 'HD Seagate Barracuda 2TB';
-UPDATE Produtos SET estoque = 20 WHERE nome = 'Gabinete Cooler Master MB520 RGB';
-
-UPDATE Produtos SET estoque = 12 WHERE nome = 'Cadeira Gamer ThunderX3 TGC12';
-UPDATE Produtos SET estoque = 21 WHERE nome = 'Cadeira Gamer DT3 Elise';
-UPDATE Produtos SET estoque = 15 WHERE nome = 'Cadeira Ergonômica Flexform Alpha';
-UPDATE Produtos SET estoque = 8 WHERE nome = 'Cadeira Gamer Razer Iskur';
-
-SET SQL_SAFE_UPDATES = 1;
-
--- Adiciona a coluna id_imagem, se ainda não existir
-ALTER TABLE Produtos
-ADD COLUMN IF NOT EXISTS id_imagem VARCHAR(20);
-
--- Atualiza os códigos de imagem para cada produto
-
--- Cadeiras
-UPDATE Produtos SET id_imagem = '01CA01.png' WHERE id = 1;
-UPDATE Produtos SET id_imagem = '02CA02.png' WHERE id = 2;
-UPDATE Produtos SET id_imagem = '03CA03.png' WHERE id = 3;
-UPDATE Produtos SET id_imagem = '04CA04.png' WHERE id = 4;
-
--- Componentes
-UPDATE Produtos SET id_imagem = '05C01.png' WHERE id = 5;
-UPDATE Produtos SET id_imagem = '06C02.png' WHERE id = 6;
-UPDATE Produtos SET id_imagem = '07C03.png' WHERE id = 7;
-UPDATE Produtos SET id_imagem = '08C04.png' WHERE id = 8;
-UPDATE Produtos SET id_imagem = '09C05.png' WHERE id = 9;
-UPDATE Produtos SET id_imagem = '10C06.png' WHERE id = 10;
-UPDATE Produtos SET id_imagem = '11C07.png' WHERE id = 11;
-
--- Monitores
-UPDATE Produtos SET id_imagem = '12M01.png' WHERE id = 12;
-UPDATE Produtos SET id_imagem = '13M02.png' WHERE id = 13;
-UPDATE Produtos SET id_imagem = '14M03.png' WHERE id = 14;
-UPDATE Produtos SET id_imagem = '15M04.png' WHERE id = 15;
-UPDATE Produtos SET id_imagem = '16M05.png' WHERE id = 16;
-
--- Periféricos
-UPDATE Produtos SET id_imagem = '17P01.png' WHERE id = 17;
-UPDATE Produtos SET id_imagem = '18P02.png' WHERE id = 18;
-UPDATE Produtos SET id_imagem = '19P03.png' WHERE id = 19;
-UPDATE Produtos SET id_imagem = '20P04.png' WHERE id = 20;
-UPDATE Produtos SET id_imagem = '21P05.png' WHERE id = 21;
-UPDATE Produtos SET id_imagem = '22P06.png' WHERE id = 22;
-UPDATE Produtos SET id_imagem = '23P07.png' WHERE id = 23;
-UPDATE Produtos SET id_imagem = '24P08.png' WHERE id = 24;
-UPDATE Produtos SET id_imagem = '25P09.png' WHERE id = 25;
-UPDATE Produtos SET id_imagem = '26P10.png' WHERE id = 26;
-
-
-select * from Produtos;
-
-ALTER TABLE Produtos DROP COLUMN imagem_id;
-
-
-
-
-
-
-	
-select * from Produtos;
+('Cadeira Gamer ThunderX3 TGC12', 1199.00, 'Cadeiras', 12, '01CA01.png'),
+('Cadeira Gamer DT3 Elise', 999.00, 'Cadeiras', 21, '02CA02.png'),
+('Cadeira Ergonômica Flexform Alpha', 1399.00, 'Cadeiras', 15, '03CA03.png'),
+('Cadeira Gamer Razer Iskur', 1899.00, 'Cadeiras', 8, '04CA04.png');
 

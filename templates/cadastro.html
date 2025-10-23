@@ -16,11 +16,10 @@
       <h3>Criar Conta</h3>
 
       {% if request.args.get('erro') %}
-      <div class="alert alert-warning" style="color:white">
-       {{ request.args.get('erro') }}
+      <div class="alert alert-warning" style="color: white">
+        {{ request.args.get('erro') }}
       </div>
       {% endif %}
-
 
       <form method="POST">
         <label>Nome</label>
@@ -45,7 +44,7 @@
         <button type="submit">Cadastrar</button>
 
         {% if erro %}
-          <p style="color:red ">{{erro}}</p>
+        <p style="color: red">{{erro}}</p>
         {% endif %}
       </form>
       <p>Já tem conta? <a href="/login">Entrar</a></p>
