@@ -102,8 +102,9 @@ def login():
             return redirect(f"/cadastro?erro={erro}")
 
         if user["senha"] != senha:
-
-            return render_template("login.html", erro="Senha incorreta.")
+            erro = "Senha incorreta. Tente Novamente."
+            return redirect(f"/login?erro={erro}")
+    
 
         session["usuario_id"] = user["id"]
         session["usuario_nome"] = user["nome"]
@@ -203,10 +204,11 @@ def salvar_produto():
     nome = request.form["nome"]
     preco = float(request.form["preco"])
     categoria = request.form.get("categoria", "")
+    estoque = int(request.form.get("estoque", 0))  
     categoria = normalizar_categoria(categoria)
     cursor.execute(
-        "INSERT INTO Produtos (nome, preco, categoria) VALUES (%s,%s,%s)",
-        (nome, preco, categoria),
+        "INSERT INTO Produtos (nome, preco, categoria, estoque) VALUES (%s,%s,%s,%s)",
+        (nome, preco, categoria, estoque),
     )
     conexao.commit()
     return redirect("/produtos")
@@ -223,18 +225,15 @@ def editar_produto(id):
 @app.route("/atualizar-produto/<int:id>", methods=["POST"])
 @admin_required
 def atualizar_produto(id):
-    nome = request.form['nome']
-    preco = request.form['preco']
-    categoria = request.form['categoria']
-    estoque = request.form['estoque']
-
-    
-    cursor = conexao.cursor()
-    cursor.execute("""
-        UPDATE produtos 
-        SET nome = %s, preco = %s, categoria = %s, estoque = %s
-        WHERE id = %s
-    """, (nome, preco, categoria, estoque, id))
+    nome = request.form["nome"]
+    preco = float(request.form["preco"])
+    categoria = request.form.get("categoria", "")
+    estoque = int(request.form.get("estoque", 0)) 
+    categoria = normalizar_categoria(categoria)
+    cursor.execute(
+        "UPDATE Produtos SET nome=%s, preco=%s, categoria=%s, estoque=%s WHERE id=%s",
+        (nome, preco, categoria, estoque, id),
+    )
     conexao.commit()
     conexao.close()
     return redirect("/produtos") 
@@ -255,6 +254,13 @@ def delete(id):
 @login_required
 def colocar_no_carrinho(produto_id):
     usuario_id = session["usuario_id"]
+
+    cursor.execute("SELECT * FROM Produtos WHERE id=%s", (produto_id,))
+    produto = cursor.fetchone()
+    if produto['estoque'] <= 0:
+        return redirect("/produtos")
+        
+
     cursor.execute(
         "SELECT * FROM Carrinho WHERE produto_id=%s AND usuario_id=%s",
         (produto_id, usuario_id),
@@ -269,6 +275,8 @@ def colocar_no_carrinho(produto_id):
             "INSERT INTO Carrinho (produto_id, quantidade, usuario_id) VALUES (%s,1,%s)",
             (produto_id, usuario_id),
         )
+
+    cursor.execute("UPDATE Produtos SET estoque = estoque - 1 WHERE id=%s", (produto_id,))
     conexao.commit()
     return redirect("/produtos")
 
@@ -294,6 +302,18 @@ def carrinho():
 @app.route("/carrinho/deletar/<int:id>")
 @login_required
 def deletar_carrinho(id):
+    cursor.execute("SELECT produto_id, quantidade FROM Carrinho WHERE id=%s", (id,))
+    item = cursor.fetchone()
+
+    if item:
+        produto_id = item["produto_id"]
+        quantidade = item["quantidade"]
+
+        cursor.execute(
+            "UPDATE Produtos SET estoque = estoque + %s WHERE id=%s",
+            (quantidade, produto_id),
+        )
+
     cursor.execute("DELETE FROM Carrinho WHERE id=%s", (id,))
     conexao.commit()
     return redirect("/carrinho")

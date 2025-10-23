@@ -32,6 +32,9 @@
           required
         /><br />
         <button type="submit">Entrar</button>
+        {% if request.args.get('erro') %}
+         <p style="color: red;">{{ request.args.get('erro') }}</p> 
+        {% endif %}
       </form>
       <p class="conta">Não tem conta? <a href="/cadastro">Cadastrar-se</a></p>
     </div>

@@ -339,104 +339,76 @@
 
             <img class="img-produto" src="../static/img/{{ p.id_imagem }}" alt="produto" />
 
-            <div class="card-info">
-              {% if p.categoria %}
-              <p class="text-muted small mb-1">
-                Categoria: <b>{{ p.categoria }}</b>
-              </p>
-              {% endif %}
-              <p class="card-text">R$ {{ "%.2f"|format(p.preco) }}</p>
-            </div>
+              <div class="card-info">
+                {% if p.categoria %}
+                <p class="text-muted small mb-1">
+                  Categoria: <b>{{ p.categoria }}</b>
+                </p>
+                {% endif %}
+                <p class="card-text">R$ {{ "%.2f"|format(p.preco) }}</p>
+                {% if session.usuario_id%}
+                {% if p.estoque <= 5 %}
+                <p>Ultimas unidades</p>
+                {% endif %}
+                {% endif %}
+                {% if session.usuario_id == 1 %}
+                {% if p.estoque <= 5 %}
+                <p> Estoque: <span style="color: red;">{{ p.estoque }}</span>
+                </p>
+                {% else %}
+                <p>Estoque: {{ p.estoque }}</p>
+                {% endif %}
+                {% endif %}
 
-            {% if session.usuario_id %}
-            <a href="/colocar/{{ p.id }}" class="add-carrinho" onclick="if(confirm('Você realmete quer adicionar ao carrinho?'))
-            {   alert('Produto adicionado com sucesso!'); return true; } 
-            else{ return false}"><button class="btn-carrinho">Adicionar ao Carrinho</button></a>
-            {% else %}
-            <a href="/login" class="btn btn-secondary w-100 mb-2">Login para comprar</a>
-            {% endif %} {% if session.usuario_admin == 1 %}
-            <div class="container-btn-card">
-              <a href=""><button class="editar">Editar</button></a>
-              <a id="editarBtn" href="/delete/{{ p.id }}"><button class="excluir"
-                  onclick="return confirm('Deseja realmente excluir esse item?')">
-                  Excluir
-                </button></a>
+                
+                
+              </div>
+
+              {% if session.usuario_id %}
+              {% if p.estoque <= 0 %}
+              <a
+                href="#"
+                class="add-carrinho"
+                onclick="return alert('Produto sem estoque')"
+                ><button class="btn-carrinho">Adicionar ao Carrinho</button></a>
+              {%else%}
+              <a
+                href="/colocar/{{ p.id }}"
+                class="add-carrinho"
+                onclick="if(confirm('Você realmete quer adicionar ao carrinho?'))
+                {   alert('Produto adicionado com sucesso!'); return true; } 
+                else{ return false}"
+                ><button class="btn-carrinho">Adicionar ao Carrinho</button></a>
+              {%endif%}
+              {% else %}
+              <a href="/login" class="btn btn-secondary w-100 mb-2"
+                >Login para comprar</a
+              >
+              {% endif %} {% if session.usuario_admin == 1 %}
+              <div class="container-btn-card">
+                <a href="/editar/{{ p.id }}"
+                  ><button class="editar">Editar</button></a
+                >
+                <a href="/delete/{{ p.id }}"
+                  ><button
+                    class="excluir"
+                    onclick="return confirm('Deseja realmente excluir esse item?')"
+                  >
+                    Excluir
+                  </button></a
+                >
+
+              </div>
+              {% endif %}
             </div>
-            {% endif %}
           </div>
         </div>
+        {% endfor %} {% else %}
+        <p class="text-center text-muted">
+          Nenhum produto encontrado nesta categoria.
+        </p>
+        {% endif %}
       </div>
-      {% endfor %} {% else %}
-      <p class="text-center text-muted">
-        Nenhum produto encontrado nesta categoria.
-      </p>
-      {% endif %}
     </div>
-  </div>
-
-
-
-  <div id="containerM" class="containerM">
-
-    <div id="card-editar" class="card-editar">
-
-      <span class="fechar">&times;</span>
-
-      <form class="form-editar" method="POST" action="/atualizar-produto/">
-        <h1> Editar Produto </h1>
-        <label for="nome">Nome:</label>
-        <input type="text" id="nome" name="nome" value="" required />
-
-        <label for="preco">Preco:</label>
-        <input type="number" id="preco" name="preco" step="0.01" value="" required />
-
-        <label for="categoria">Categoria:</label>
-        <input type="text" id="categoria" name="categoria" value="" required />
-
-        <label for="estoque">Estoque:</label>
-        <input type="number" id="estoque" name="estoque" value="" required />
-
-        <button type="submit">Salvar</button>
-      </form>
-    </div>
-  </div>
-
-
-  <script>
-
-    const modal = document.getElementById('containerM');
-    const fechar = document.querySelector('.fechar');
-    const form = document.querySelector('.form-editar');
-
-    // Pega todos os botões "Editar"
-    document.querySelectorAll('.editar').forEach(btn => {
-      btn.addEventListener('click', () => {
-        // Pega os dados do produto clicado
-        const id = btn.dataset.id;
-        const nome = btn.dataset.nome;
-        const preco = btn.dataset.preco;
-        const categoria = btn.dataset.categoria;
-        const estoque = btn.dataset.estoque;
-
-        // Preenche o formulário
-        form.action = `/atualizar-produto/${id}`;
-        document.getElementById('nome').value = nome;
-        document.getElementById('preco').value = preco;
-        document.getElementById('categoria').value = categoria;
-        document.getElementById('estoque').value = estoque;
-
-        // Mostra o modal
-        modal.style.display = 'flex';
-      });
-    });
-
-    // Fechar modal
-    fechar.onclick = () => modal.style.display = 'none';
-    window.onclick = e => { if (e.target === modal) modal.style.display = 'none'; };
-
-
-  </script>
-
-</body>
-
+  </body>
 </html>
