@@ -129,7 +129,7 @@ def logout():
 @app.route("/produtos")
 @login_required
 def listar_produtos():
-    cursor.execute("SELECT * FROM Produtos")
+    cursor.execute("SELECT * FROM Produtos ORDER BY nome ASC")
     produtos = cursor.fetchall()
     categorias = buscar_categorias()
     return render_template("produtos.html", produtos=produtos, categorias=categorias)
