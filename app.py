@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request, redirect, session, jsonify
 import mysql.connector
 from functools import wraps
 import unicodedata
@@ -217,22 +217,27 @@ def salvar_produto():
 def editar_produto(id):
     cursor.execute("SELECT * FROM Produtos WHERE id=%s", (id,))
     produto = cursor.fetchone()
-    return render_template("editar-produto.html", produto=produto)
+    return 
 
 
 @app.route("/atualizar-produto/<int:id>", methods=["POST"])
 @admin_required
 def atualizar_produto(id):
-    nome = request.form["nome"]
-    preco = float(request.form["preco"])
-    categoria = request.form.get("categoria", "")
-    categoria = normalizar_categoria(categoria)
-    cursor.execute(
-        "UPDATE Produtos SET nome=%s, preco=%s, categoria=%s WHERE id=%s",
-        (nome, preco, categoria, id),
-    )
+    nome = request.form['nome']
+    preco = request.form['preco']
+    categoria = request.form['categoria']
+    estoque = request.form['estoque']
+
+    
+    cursor = conexao.cursor()
+    cursor.execute("""
+        UPDATE produtos 
+        SET nome = %s, preco = %s, categoria = %s, estoque = %s
+        WHERE id = %s
+    """, (nome, preco, categoria, estoque, id))
     conexao.commit()
-    return redirect("/produtos")
+    conexao.close()
+    return redirect("/produtos") 
 
 
 @app.route("/delete/<int:id>")
