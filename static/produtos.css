@@ -93,11 +93,12 @@ span {
 
 .card-body {
     background-color: rgb(51, 51, 51);
-    color: rgb(255, 255, 255);
+    color: rgb(25
+    5, 255, 255);
     border-radius: 15px;
     color: white;
-    height: 350px;
-    width: 350px;
+    height: 400px;
+    width: 400px;
     display: flex;
     flex-direction: column;
     padding: 20px;
@@ -106,13 +107,27 @@ span {
 
 }
 
+.img-produto{
+    width: 200px;
+    height: 200px;
+    border-radius: 8px;
+
+}
+
 .card-body p {
     color: rgb(255, 255, 255);
+    margin-top: 5px;
+}
+
+.card-info{
+    display: flex;
+    gap: 50px;
 }
 
 .card-title {
-    
-    
+    padding: 0px;
+    margin: 10px;
+
     font-size: 20pt;
     color: rgb(255, 255, 255);
 }
