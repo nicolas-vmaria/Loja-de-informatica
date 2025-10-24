@@ -1,10 +1,12 @@
 🖥️ Loja de Informática
-🍇 Grape Tech - CRUD Web Este é um projeto de site para uma loja de informática, desenvolvido com foco em operações CRUD (Criar, Ler, Atualizar e Deletar) de produtos.
+🍇 Grape Tech - CRUD Web 
+Este é um projeto de site para uma loja de informática, desenvolvido com foco em operações CRUD (Criar, Ler, Atualizar e Deletar) de produtos.
 
 🎯 Objetivo
 Criar uma aplicação web funcional que permita o gerenciamento completo de produtos de uma loja de informática, com recursos de autenticação de usuários, por meio de uma interface amigável e intuitiva.
 
-⚙️ Funcionalidades
+⚙️ Funcionalidades: 
+
 🔍 Listagem de produtos: Exibe todos os produtos cadastrados com detalhes.
 
 ➕ Cadastro de produto: Permite adicionar novos produtos ao banco de dados.
@@ -22,6 +24,7 @@ Criar uma aplicação web funcional que permita o gerenciamento completo de prod
 🎨 Interface responsiva: Desenvolvida com HTML e CSS para boa experiência em diferentes dispositivos.
 
 🧪 Tecnologias Utilizadas
+
 🐍 Python 3.10+
 
 🔥 Flask
