@@ -348,33 +348,36 @@
               {% endif %}
               <p class="card-text">R$ {{ "%.2f"|format(p.preco) }}</p>
               {% if session.usuario_id%}
-              {% if p.estoque <= 5 %} <p>Ultimas unidades</p>
+              {% if p.estoque <= 10 %} <p>Ultimas {{ p.estoque }} unidades</p>
                 {% endif %}
                 {% endif %}
+
                 {% if session.usuario_id == 1 %}
-                {% if p.estoque <= 5 %} <p> Estoque: <span style="color: red;">{{ p.estoque }}</span>
-                  </p>
+                  {% if p.estoque <= 5 %} 
+
+                    <p> Estoque: <span style="color: red;">{{ p.estoque }}</span></p>
+
                   {% else %}
-                  <p>Estoque: {{ p.estoque }}</p>
+                    <p>Estoque: {{ p.estoque }}</p>
                   {% endif %}
-                  {% endif %}
+                {% endif %}
 
 
 
             </div>
 
             {% if session.usuario_id %}
-            {% if p.estoque <= 0 %} <a href="#" class="add-carrinho" onclick="return alert('Produto sem estoque')">
+            {% if p.estoque == 10 %} <a href="#" class="add-carrinho" onclick="return alert('Produto sem estoque')">
               <button class="btn-carrinho">Adicionar ao Carrinho</button></a>
               {%else%}
-              <a href="/colocar/{{ p.id }}" class="add-carrinho" onclick="if(confirm('Você realmete quer adicionar ao carrinho?'))
-                {   alert('Produto adicionado com sucesso!'); return true; } 
-                else{ return false}"><button class="btn-carrinho">Adicionar ao Carrinho</button></a>
+              <a href="/colocar/{{ p.id }}" class="add-carrinho" onclick="alert('{{ p.nome }} foi adicionado ao carrinho')"><button class="btn-carrinho">Adicionar ao Carrinho</button></a>
               {%endif%}
               {% else %}
               <a href="/login" class="btn btn-secondary w-100 mb-2">Login para comprar</a>
               {% endif %} {% if session.usuario_admin == 1 %}
               <div class="container-btn-card">
+                <a style="display: none;" href="/colocar/{{ p.id }}" class="add-carrinho" onclick="alert('{{ p.nome }} foi adicionado ao carrinho')"><button class="btn-carrinho">Adicionar ao Carrinho</button></a>
+
                 <button id="" data-id="{{ p.id }}" class="editar">Editar</button>
                 <a href="/delete/{{ p.id }}"><button class="excluir"
                     onclick="return confirm('Deseja realmente excluir esse item?')">
