@@ -40,8 +40,10 @@ CREATE TABLE Carrinho (
 -- ==============================
 -- USUÁRIO ADMINISTRADOR
 -- ==============================
+
 INSERT INTO Usuarios (nome, email, senha, admin)
-VALUES ('Administrador', 'adm@gmail.com', '123', 1);
+VALUES ('Administrador', 'adm@grapetech.com', 'adm@123', 1);
+
 
 -- ==============================
 -- PRODUTOS (com estoque e imagem)
@@ -78,3 +80,4 @@ INSERT INTO Produtos (nome, preco, categoria, estoque, id_imagem) VALUES
 ('Cadeira Ergonômica Flexform Alpha', 1399.00, 'Cadeiras', 15, '03CA03.png'),
 ('Cadeira Gamer Razer Iskur', 1899.00, 'Cadeiras', 8, '04CA04.png');
 
+select * from Produtos;

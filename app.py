@@ -1,3 +1,4 @@
+import os
 from flask import Flask, render_template, request, redirect, session, jsonify
 import mysql.connector
 from functools import wraps
@@ -5,12 +6,14 @@ import unicodedata
 
 app = Flask(__name__)
 app.secret_key = "chave_segura"
+UPLOAD_FOLDER = 'static/img/'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # -----------------------------
 # Conexão com o banco
 # -----------------------------
 conexao = mysql.connector.connect(
-    host="localhost", port="3306", user="root", password="12345678", database="loja_informatica"
+    host="localhost", port="3406", user="root", password="", database="loja_informatica"
 )
 cursor = conexao.cursor(dictionary=True)
 
@@ -197,34 +200,67 @@ def normalizar_categoria(categoria):
     )
     return mapa.get(chave, categoria.strip().capitalize())
 
+def inicial_categoria(categoria):
+    return categoria[0].upper()
+
 
 @app.route("/salvar-produto", methods=["POST"])
 @admin_required
 def salvar_produto():
     nome = request.form["nome"]
     preco = float(request.form["preco"])
-    categoria = request.form.get("categoria", "")
+    categoria = normalizar_categoria(request.form.get("categoria", ""))
     estoque = int(request.form.get("estoque", 0))  
-    categoria = normalizar_categoria(categoria)
+
+    imagem = request.files.get('imagem')
+    if not imagem or not imagem.filename.endswith('.png'):
+        return "Erro: Imagem inválida. Só PNG permitido."
+
+    # ID do produto
+    cursor.execute("SELECT MAX(id) AS max_id FROM Produtos")
+    resultado = cursor.fetchone()
+    id_produto = (resultado['max_id'] if resultado['max_id'] is not None else 0) + 1
+
+    id_str = str(id_produto).zfill(2)
+
+    # Ordem na categoria
+    cursor.execute("SELECT COUNT(*) AS total FROM Produtos WHERE categoria = %s", (categoria,))
+    resultado = cursor.fetchone()
+    ordem_categoria = (resultado['total'] if resultado['total'] is not None else 0) + 1
+
+    ordem_str = str(ordem_categoria).zfill(2)
+
+    cat_inicial = categoria[0].upper()
+    nome_arquivo = f"{id_str}{cat_inicial}{ordem_str}.png"
+    caminho = os.path.join(app.config['UPLOAD_FOLDER'], nome_arquivo)
+
+    # Salvar a imagem
+    imagem.save(caminho)
+
+    # Inserir no banco
     cursor.execute(
-        "INSERT INTO Produtos (nome, preco, categoria, estoque) VALUES (%s,%s,%s,%s)",
-        (nome, preco, categoria, estoque),
+        "INSERT INTO Produtos (nome, preco, categoria, estoque, id_imagem) VALUES (%s,%s,%s,%s,%s)",
+        (nome, preco, categoria, estoque, nome_arquivo),
     )
     conexao.commit()
     return redirect("/produtos")
 
 
-@app.route("/editar/<int:id>")
+@app.route("/api/produto/<int:id>")
 @admin_required
-def editar_produto(id):
+def api_produto(id):
     cursor.execute("SELECT * FROM Produtos WHERE id=%s", (id,))
     produto = cursor.fetchone()
-    return 
+    if produto:
+        return jsonify(produto)
+    
+    else:
+        return jsonify({"erro": "Produto não encontrado"}), 404
 
 
-@app.route("/atualizar-produto/<int:id>", methods=["POST"])
+@app.route("/api/produto/<int:id>", methods=["POST"])
 @admin_required
-def atualizar_produto(id):
+def api_atualizar_produto(id):
     nome = request.form["nome"]
     preco = float(request.form["preco"])
     categoria = request.form.get("categoria", "")
@@ -235,8 +271,8 @@ def atualizar_produto(id):
         (nome, preco, categoria, estoque, id),
     )
     conexao.commit()
-    conexao.close()
-    return redirect("/produtos") 
+    
+    return jsonify({"mensagem": "Produto atualizado com sucesso!"})
 
 
 @app.route("/delete/<int:id>")
