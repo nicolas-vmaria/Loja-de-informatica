@@ -2,18 +2,37 @@ import os
 from flask import Flask, render_template, request, redirect, session, jsonify
 import mysql.connector
 from functools import wraps
+from flask_admin import Admin
+from flask_admin.contrib.sqla import ModelView
+from models import db, Produtos, Usuarios
 import unicodedata
+
+admin = Admin()
+
+def init_app(app):
+    admin.name = "Loja de Informática Admin"
+    admin.template_mode = "bootstrap3"
+    admin.init_app(app)
+
+# Configurações iniciais
 
 app = Flask(__name__)
 app.secret_key = "chave_segura"
+app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://root:12345678@localhost/loja_informatica"
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 UPLOAD_FOLDER = 'static/img/'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+db.init_app(app)
+admin.sinit_app(app)
+
+admin.add_view(ModelView(Produtos, db.session))
+admin.add_view(ModelView(Usuarios, db.session))
 
 # -----------------------------
 # Conexão com o banco
 # -----------------------------
 conexao = mysql.connector.connect(
-    host="localhost", port="3406", user="root", password="", database="loja_informatica"
+    host="localhost", port="3306", user="root", password="12345678", database="loja_informatica"
 )
 cursor = conexao.cursor(dictionary=True)
 

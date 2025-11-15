@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    {% extends 'admin/master.html' %}
+
+{% block body %}
+    <h1>Produtos</h1>
+
+    <table class="table table-dark table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Preço</th>
+                <th>Categoria</th>
+                <th>Estoque</th>
+                <th>Imagem</th>
+            </tr>
+        </thead>
+
+        <tbody>
+        {% for p in produtos %}
+            <tr>
+                <td>{{ p.id }}</td>
+                <td>{{ p.nome }}</td>
+                <td>R$ {{ p.preco }}</td>
+                <td>{{ p.categoria }}</td>
+                <td>{{ p.estoque }}</td>
+                <td>{{ p.id_imagem }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
+
+</body>
+</html>
